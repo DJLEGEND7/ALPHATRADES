@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alpha Trades — Plan. Execute. Grow.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-void:#0a0a0c;
+    --bg-panel:#131318;
+    --bg-panel-2:#1a1b21;
+    --line-hair: rgba(245,244,240,0.09);
+    --line-hair-strong: rgba(245,244,240,0.16);
+    --text-primary:#f5f4f0;
+    --text-muted:#9a9ca3;
+    --text-faint:#5c5e66;
+    --gold:#c9a24b;
+    --gold-soft: rgba(201,162,75,0.14);
+    --white-line:#ffffff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--bg-void);
+    color:var(--text-primary);
+    font-family:'Inter', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--gold-soft); color:var(--gold); }
+  a{ color:inherit; text-decoration:none; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{ content:''; width:18px; height:1px; background:var(--gold); display:inline-block; }
+
+  h1,h2,h3{ font-family:'Space Grotesk', sans-serif; letter-spacing:-0.01em; }
+
+  /* NAV */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:50;
+    background:rgba(10,10,12,0.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line-hair);
+  }
+  nav.wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:76px;
+  }
+  .brand{ display:flex; align-items:center; gap:12px; }
+  .brand img{ height:34px; width:34px; object-fit:contain; }
+  .brand span{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:17px; letter-spacing:0.02em; }
+  .brand span b{ color:var(--gold); font-weight:600; }
+  .navlinks{ display:flex; gap:36px; }
+  .navlinks a{
+    font-size:14px; color:var(--text-muted); font-weight:500;
+    transition:color .2s;
+  }
+  .navlinks a:hover{ color:var(--text-primary); }
+  .navcta{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    padding:10px 18px;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    border-radius:2px;
+    letter-spacing:0.05em;
+    transition:.2s;
+  }
+  .navcta:hover{ background:var(--gold); color:#0a0a0c; }
+  @media(max-width:860px){ .navlinks{ display:none; } }
+  .ticker-wrap{
+    border-top:1px solid var(--line-hair);
+    border-bottom:1px solid var(--line-hair);
+    padding:8px 0;
+    background:var(--bg-panel);
+  }
+
+  /* HERO */
+  .hero{
+    position:relative;
+    padding:200px 0 140px;
+    overflow:hidden;
+    border-bottom:1px solid var(--line-hair);
+  }
+  .hero-grid{
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--line-hair) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-hair) 1px, transparent 1px);
+    background-size:64px 64px;
+    mask-image: radial-gradient(ellipse 70% 60% at 70% 20%, black 10%, transparent 75%);
+    opacity:.5;
+  }
+  .hero-chart{
+    position:absolute; top:0; right:-4%; width:62%; height:100%;
+    opacity:0.9;
+    pointer-events:none;
+  }
+  .hero-chart svg{ width:100%; height:100%; }
+  .hero-line{
+    fill:none; stroke:var(--white-line); stroke-width:2;
+    stroke-linecap:round; stroke-linejoin:round;
+    filter: drop-shadow(0 0 6px rgba(255,255,255,0.55));
+    stroke-dasharray: 1400;
+    stroke-dashoffset: 1400;
+    animation: draw 2.6s cubic-bezier(.3,.8,.3,1) 0.3s forwards;
+  }
+  .hero-dot{
+    fill:var(--white-line);
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.9));
+    opacity:0;
+    animation: fadein .6s ease 2.7s forwards;
+  }
+  .candle{ opacity:0.28; }
+  @keyframes draw{ to{ stroke-dashoffset:0; } }
+  @keyframes fadein{ to{ opacity:1; } }
+
+  .hero-inner{ position:relative; z-index:2; max-width:640px; }
+  .hero h1{
+    font-size:56px; line-height:1.08; font-weight:600; margin:22px 0 26px;
+  }
+  .hero h1 em{ font-style:normal; color:var(--gold); }
+  .hero p.lead{
+    font-size:17px; line-height:1.7; color:var(--text-muted); max-width:520px; margin-bottom:38px;
+  }
+  .hero-ctas{ display:flex; gap:16px; flex-wrap:wrap; }
+  .btn-primary, .btn-ghost{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px; letter-spacing:0.04em;
+    padding:15px 26px; border-radius:2px;
+    display:inline-flex; align-items:center; gap:10px;
+    transition:.2s;
+  }
+  .btn-primary{ background:var(--gold); color:#0a0a0c; font-weight:500; }
+  .btn-primary:hover{ background:#e0bb60; }
+  .btn-ghost{ border:1px solid var(--line-hair-strong); color:var(--text-primary); }
+  .btn-ghost:hover{ border-color:var(--text-primary); }
+
+  @media(max-width:860px){
+    .hero{ padding:150px 0 90px; }
+    .hero h1{ font-size:38px; }
+    .hero-chart{ opacity:.35; right:-20%; width:90%; }
+  }
+
+  /* SECTION shared */
+  section{ padding:120px 0; border-bottom:1px solid var(--line-hair); position:relative; }
+  .section-head{ max-width:600px; margin-bottom:64px; }
+  .section-head h2{ font-size:36px; font-weight:600; margin-top:16px; }
+  .section-head p{ color:var(--text-muted); margin-top:16px; font-size:15.5px; line-height:1.7; }
+
+  /* PHILOSOPHY - Plan Execute Grow (real ordered sequence) */
+  .pillars{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line-hair); border:1px solid var(--line-hair); }
+  .pillar{ background:var(--bg-void); padding:44px 36px; position:relative; }
+  .pillar .num{
+    font-family:'JetBrains Mono', monospace; font-size:13px; color:var(--gold);
+  }
+  .pillar h3{ font-size:22px; margin:20px 0 14px; font-weight:600; }
+  .pillar p{ color:var(--text-muted); font-size:14.5px; line-height:1.7; }
+  @media(max-width:860px){ .pillars{ grid-template-columns:1fr; } }
+
+  /* MARKETS */
+  .markets-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .market-card{
+    border:1px solid var(--line-hair); padding:30px 24px; border-radius:4px;
+    background:linear-gradient(180deg, var(--bg-panel), transparent);
+    transition:.25s;
+  }
+  .market-card:hover{ border-color:var(--gold); transform:translateY(-3px); }
+  .market-card .tag{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); letter-spacing:.1em; }
+  .market-card h3{ font-size:19px; margin:14px 0 10px; }
+  .market-card p{ font-size:13.5px; color:var(--text-muted); line-height:1.6; }
+  @media(max-width:860px){ .markets-grid{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:560px){ .markets-grid{ grid-template-columns:1fr; } }
+
+  /* COMMUNITY FEATURES */
+  .features{ display:grid; grid-template-columns:1.1fr 1fr; gap:70px; align-items:center; }
+  .feature-list{ display:flex; flex-direction:column; }
+  .feature-item{ display:flex; gap:20px; padding:26px 0; border-top:1px solid var(--line-hair); }
+  .feature-item:last-child{ border-bottom:1px solid var(--line-hair); }
+  .feature-icon{
+    width:38px; height:38px; flex-shrink:0; border:1px solid var(--gold); border-radius:50%;
+    display:flex; align-items:center; justify-content:center; color:var(--gold);
+    font-family:'JetBrains Mono',monospace; font-size:13px;
+  }
+  .feature-item h3{ font-size:17px; margin-bottom:8px; }
+  .feature-item p{ font-size:13.5px; color:var(--text-muted); line-height:1.65; }
+  .feature-panel{
+    border:1px solid var(--line-hair); border-radius:6px; background:var(--bg-panel);
+    padding:34px; position:relative; overflow:hidden;
+  }
+  .ticker-row{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line-hair); font-family:'JetBrains Mono', monospace; font-size:13px; }
+  .ticker-row:last-child{ border-bottom:none; }
+  .ticker-row .pair{ color:var(--text-primary); }
+  .ticker-row .up{ color:#7fd39c; }
+  .ticker-row .down{ color:#e08585; }
+  .market-overview-holder{ width:100%; height:420px; }
+  .market-overview-holder tv-market-overview{ width:100%; height:100%; display:block; }
+  @media(max-width:900px){ .features{ grid-template-columns:1fr; } }
+
+  /* FOUNDER */
+  .founder{ display:flex; gap:56px; align-items:flex-start; }
+  .founder-mark{
+    width:110px; height:110px; border-radius:50%; border:1px solid var(--gold);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:30px; color:var(--gold);
+  }
+  .founder blockquote{ font-size:22px; line-height:1.6; font-family:'Space Grotesk',sans-serif; font-weight:500; }
+  .founder cite{ display:block; margin-top:22px; font-style:normal; color:var(--text-muted); font-family:'JetBrains Mono',monospace; font-size:13px; }
+  .founder-bio{ margin-top:22px; font-size:14.5px; line-height:1.75; color:var(--text-muted); max-width:560px; }
+  .founder-badges{ display:flex; flex-wrap:wrap; gap:10px; margin-top:24px; }
+  .founder-badges span{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; letter-spacing:.03em;
+    border:1px solid var(--line-hair-strong); color:var(--text-primary);
+    padding:7px 12px; border-radius:2px;
+  }
+  @media(max-width:700px){ .founder{ flex-direction:column; text-align:center; align-items:center; } .founder-badges{ justify-content:center; } }
+
+  /* TRACK RECORD / PARTNERS */
+  .track-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .track-card{
+    border:1px solid var(--line-hair); padding:26px 24px; border-radius:4px;
+  }
+  .track-card .role{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); letter-spacing:.08em; text-transform:uppercase; }
+  .track-card h3{ font-size:18px; margin:12px 0 8px; }
+  .track-card p{ font-size:13px; color:var(--text-muted); line-height:1.6; }
+  @media(max-width:860px){ .track-grid{ grid-template-columns:1fr 1fr; } }
+  @media(max-width:560px){ .track-grid{ grid-template-columns:1fr; } }
+  .cred-row{ display:flex; flex-wrap:wrap; gap:12px; margin-top:36px; }
+  .cred-row span{
+    font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted);
+    border:1px solid var(--line-hair); padding:8px 14px; border-radius:20px;
+  }
+
+  /* JOIN */
+  .join{ text-align:center; }
+  .join h2{ font-size:38px; max-width:620px; margin:16px auto 20px; }
+  .join p{ color:var(--text-muted); max-width:480px; margin:0 auto 44px; font-size:15.5px; line-height:1.7; }
+  form.join-form{ display:flex; gap:12px; max-width:460px; margin:0 auto; flex-wrap:wrap; justify-content:center; }
+  form.join-form input{
+    flex:1; min-width:220px; background:var(--bg-panel); border:1px solid var(--line-hair-strong);
+    color:var(--text-primary); padding:15px 18px; font-family:'Inter',sans-serif; font-size:14px; border-radius:2px;
+  }
+  form.join-form input:focus{ outline:none; border-color:var(--gold); }
+  form.join-form button{
+    font-family:'JetBrains Mono',monospace; background:var(--gold); color:#0a0a0c; border:none;
+    padding:0 26px; font-size:13px; letter-spacing:.04em; border-radius:2px; cursor:pointer; transition:.2s;
+  }
+  form.join-form button:hover{ background:#e0bb60; }
+  .form-note{ font-size:12px; color:var(--text-faint); margin-top:16px; }
+
+  /* FOOTER */
+  footer{ padding:56px 0 40px; }
+  .footer-inner{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; }
+  .footer-brand{ display:flex; align-items:center; gap:12px; }
+  .footer-brand img{ height:26px; }
+  .footer-brand span{ font-family:'Space Grotesk',sans-serif; font-size:14px; color:var(--text-muted); }
+  .footer-links{ display:flex; gap:26px; }
+  .footer-links a{ font-size:13px; color:var(--text-muted); transition:.2s; }
+  .footer-links a:hover{ color:var(--text-primary); }
+  .footer-legal{ font-size:12px; color:var(--text-faint); margin-top:30px; font-family:'JetBrains Mono',monospace; }
+
+  .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-line, .hero-dot, .reveal{ animation:none !important; transition:none !important; opacity:1 !important; transform:none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="brand">
+      <img src="alpha-trades-logo.png" alt="Alpha Trades logo">
+      <span>ALPHA <b>TRADES</b></span>
+    </div>
+    <div class="navlinks">
+      <a href="#philosophy">Philosophy</a>
+      <a href="#markets">Markets</a>
+      <a href="#community">Community</a>
+      <a href="#founder">Founder</a>
+      <a href="#track-record">Track Record</a>
+    </div>
+    <a href="#join" class="navcta">JOIN THE DESK</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-chart">
+    <svg viewBox="0 0 700 500" preserveAspectRatio="xMidYMid slice">
+      <g class="candle">
+        <rect x="60" y="330" width="10" height="60" fill="#5c5e66"/><line x1="65" y1="310" x2="65" y2="410" stroke="#5c5e66"/>
+        <rect x="90" y="300" width="10" height="70" fill="#5c5e66"/><line x1="95" y1="280" x2="95" y2="390" stroke="#5c5e66"/>
+        <rect x="120" y="340" width="10" height="50" fill="#5c5e66"/><line x1="125" y1="320" x2="125" y2="400" stroke="#5c5e66"/>
+        <rect x="150" y="290" width="10" height="65" fill="#5c5e66"/><line x1="155" y1="270" x2="155" y2="370" stroke="#5c5e66"/>
+        <rect x="180" y="250" width="10" height="70" fill="#5c5e66"/><line x1="185" y1="230" x2="185" y2="330" stroke="#5c5e66"/>
+        <rect x="210" y="270" width="10" height="55" fill="#5c5e66"/><line x1="215" y1="250" x2="215" y2="340" stroke="#5c5e66"/>
+        <rect x="240" y="220" width="10" height="65" fill="#5c5e66"/><line x1="245" y1="200" x2="245" y2="300" stroke="#5c5e66"/>
+        <rect x="270" y="190" width="10" height="60" fill="#5c5e66"/><line x1="275" y1="170" x2="275" y2="260" stroke="#5c5e66"/>
+        <rect x="300" y="210" width="10" height="45" fill="#5c5e66"/><line x1="305" y1="190" x2="305" y2="270" stroke="#5c5e66"/>
+        <rect x="330" y="160" width="10" height="65" fill="#5c5e66"/><line x1="335" y1="140" x2="335" y2="240" stroke="#5c5e66"/>
+        <rect x="360" y="130" width="10" height="55" fill="#5c5e66"/><line x1="365" y1="110" x2="365" y2="200" stroke="#5c5e66"/>
+        <rect x="390" y="150" width="10" height="45" fill="#5c5e66"/><line x1="395" y1="130" x2="395" y2="210" stroke="#5c5e66"/>
+        <rect x="420" y="100" width="10" height="60" fill="#5c5e66"/><line x1="425" y1="80" x2="425" y2="175" stroke="#5c5e66"/>
+        <rect x="450" y="70" width="10" height="55" fill="#5c5e66"/><line x1="455" y1="50" x2="455" y2="140" stroke="#5c5e66"/>
+        <rect x="480" y="90" width="10" height="40" fill="#5c5e66"/><line x1="485" y1="70" x2="485" y2="150" stroke="#5c5e66"/>
+        <rect x="510" y="50" width="10" height="55" fill="#5c5e66"/><line x1="515" y1="30" x2="515" y2="120" stroke="#5c5e66"/>
+      </g>
+      <polyline class="hero-line" points="60,390 100,360 140,375 180,320 220,340 260,270 300,290 340,220 380,240 420,150 460,170 500,90 540,110 580,55" />
+      <circle class="hero-dot" cx="580" cy="55" r="5"/>
+    </svg>
+  </div>
+  <div class="wrap hero-inner">
+    <div class="eyebrow">FOREX · CRYPTO · METALS · INDICES</div>
+    <h1>A trading desk<br>built to <em>plan, execute,</em><br>and grow — together.</h1>
+    <p class="lead">Alpha Trades is a community for serious traders. We share the process behind every position — analysis, risk, and review — across forex, crypto, and the metals we trade every day.</p>
+    <div class="hero-ctas">
+      <a href="#join" class="btn-primary">JOIN THE COMMUNITY →</a>
+      <a href="#philosophy" class="btn-ghost">HOW WE TRADE</a>
+    </div>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-ticker-tape.js"></script>
+  <tv-ticker-tape theme="dark" transparent symbols="FOREXCOM:SPXUSD,FOREXCOM:NSXUSD,FOREXCOM:DJI,FX:EURUSD,BITSTAMP:BTCUSD,BITSTAMP:ETHUSD,CMCMARKETS:GOLD"></tv-ticker-tape>
+</div>
+
+<section id="philosophy">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Our process</div>
+      <h2>Plan. Execute. Grow.</h2>
+      <p>Three stages, in this order, every time. It's the discipline that separates a strategy from a guess — and it shapes everything we teach inside the community.</p>
+    </div>
+    <div class="pillars reveal">
+      <div class="pillar">
+        <div class="num">01 / PLAN</div>
+        <h3>Build the thesis</h3>
+        <p>Every trade starts on paper — bias, structure, invalidation level, and position size decided before a chart is even open live.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">02 / EXECUTE</div>
+        <h3>Trade the plan</h3>
+        <p>Entries are shared with the reasoning behind them, not just the ticket. Members see the setup, the risk, and the exit — as it happens.</p>
+      </div>
+      <div class="pillar">
+        <div class="num">03 / GROW</div>
+        <h3>Review and compound</h3>
+        <p>Every week closes with a review — what worked, what didn't, and what changes for next week. Edge is built in the review, not the entry.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="markets">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Markets we cover</div>
+      <h2>One desk, four markets.</h2>
+      <p>Different instruments, same process. Members follow whichever markets fit their own trading, with dedicated coverage for each.</p>
+    </div>
+    <div class="markets-grid reveal">
+      <div class="market-card">
+        <div class="tag">FX</div>
+        <h3>Forex</h3>
+        <p>Majors and select crosses, tracked around session opens and macro catalysts.</p>
+      </div>
+      <div class="market-card">
+        <div class="tag">DIGITAL ASSETS</div>
+        <h3>Crypto</h3>
+        <p>BTC, ETH, and the majors — positioned around structure, not sentiment.</p>
+      </div>
+      <div class="market-card">
+        <div class="tag">METALS</div>
+        <h3>Gold (XAUUSD)</h3>
+        <p>A core focus of the desk, including automated tooling built specifically for gold.</p>
+      </div>
+      <div class="market-card">
+        <div class="tag">INDICES</div>
+        <h3>Indices</h3>
+        <p>US and global index exposure for members trading broader market moves.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="community">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Inside the community</div>
+      <h2>What members get.</h2>
+    </div>
+    <div class="features">
+      <div class="feature-list reveal">
+        <div class="feature-item">
+          <div class="feature-icon">①</div>
+          <div>
+            <h3>Live trade breakdowns</h3>
+            <p>Setups posted with the full reasoning — plan, invalidation, and risk — not just an entry price.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">②</div>
+          <div>
+            <h3>Education, not signals-only</h3>
+            <p>Sessions on structure, risk, and psychology, so members can eventually build their own process.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">③</div>
+          <div>
+            <h3>Automated tooling</h3>
+            <p>Access to desk-built trading tools, including custom automation for gold, refined against real conditions.</p>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-icon">④</div>
+          <div>
+            <h3>Weekly reviews</h3>
+            <p>A standing review of the week's trades — wins, losses, and what changes going forward.</p>
+          </div>
+        </div>
+      </div>
+      <div class="feature-panel reveal">
+        <div class="eyebrow" style="margin-bottom:20px;">DESK WATCHLIST — LIVE</div>
+        <div class="market-overview-holder">
+          <script type="module" src="https://widgets.tradingview-widget.com/w/en/tv-market-overview.js"></script>
+          <tv-market-overview
+            theme="dark"
+            transparent
+            symbol-sectors='[{"sectionName":"Forex","symbols":["FX:EURUSD","FX:GBPUSD","FX:USDJPY","FX:AUDUSD"]},{"sectionName":"Metals & Indices","symbols":["OANDA:XAUUSD","FOREXCOM:SPXUSD","FOREXCOM:DJI","FOREXCOM:NSXUSD"]},{"sectionName":"Crypto","symbols":["BITSTAMP:BTCUSD","BITSTAMP:ETHUSD","CRYPTO:XRPUSD"]}]'>
+          </tv-market-overview>
+        </div>
+        <div class="form-note" style="margin-top:16px;">Live market data — for illustration, not investment advice.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="founder">
+  <div class="wrap">
+    <div class="founder reveal">
+      <div class="founder-mark">MA</div>
+      <div>
+        <blockquote>"I built Alpha Trades because most trading communities sell signals. We wanted a desk that teaches the plan behind the trade — so members grow past needing us."</blockquote>
+        <cite>MUHAMMAD MOMIN ASAD ("DJ LEGEND") — FOUNDER &amp; CEO, ALPHA TRADES</cite>
+        <p class="founder-bio">Full-time Forex and crypto trader based in Pakistan, managing live and funded accounts across Exness, FundingPips, Goat Funded Trader, and XM. Momin has passed funded-trader evaluations under strict drawdown limits, and works as an Introducing Broker Partner and Financial Market Analyst alongside running Alpha Trades day to day.</p>
+        <div class="founder-badges">
+          <span>IB PARTNER — EXNESS</span>
+          <span>IB PARTNER — PRIMEXBT</span>
+          <span>FUNDED TRADER</span>
+          <span>MARKET ANALYST</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="track-record">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Track record</div>
+      <h2>Trading live, not just teaching it.</h2>
+      <p>Alpha Trades is led from the front — active accounts and partnerships across the platforms members actually use.</p>
+    </div>
+    <div class="track-grid reveal">
+      <div class="track-card">
+        <div class="role">IB Partner &amp; Analyst</div>
+        <h3>Exness</h3>
+        <p>Foreign Exchange Trader &amp; Introducing Broker Partner, since 2025.</p>
+      </div>
+      <div class="track-card">
+        <div class="role">IB Partner &amp; Analyst</div>
+        <h3>PrimeXBT</h3>
+        <p>Introducing Broker Partner &amp; Financial Market Analyst.</p>
+      </div>
+      <div class="track-card">
+        <div class="role">Funded Trader</div>
+        <h3>FundingPips</h3>
+        <p>Foreign Exchange Trader on funded accounts.</p>
+      </div>
+      <div class="track-card">
+        <div class="role">Funded Trader</div>
+        <h3>Goat Funded Trader</h3>
+        <p>Financial Market Analyst managing funded capital.</p>
+      </div>
+      <div class="track-card">
+        <div class="role">Funded Trader</div>
+        <h3>XM</h3>
+        <p>Foreign Exchange Trader, live and funded accounts.</p>
+      </div>
+      <div class="track-card">
+        <div class="role">Funded Trader</div>
+        <h3>Instant Funding</h3>
+        <p>Foreign Exchange Trader on a funded account.</p>
+      </div>
+    </div>
+    <div class="cred-row reveal">
+      <span>✓ Intro to Regulatory Risks and Frameworks</span>
+      <span>✓ Cardano Fundamentals</span>
+    </div>
+  </div>
+</section>
+
+<section id="join" class="join">
+  <div class="wrap">
+    <div class="eyebrow" style="justify-content:center;">Join the desk</div>
+    <h2>Trade with a plan.<br>Grow with a desk.</h2>
+    <p>Leave your email and we'll send an invite to the Alpha Trades community as soon as we open the doors.</p>
+    <form class="join-form" onsubmit="event.preventDefault(); this.querySelector('button').textContent='REQUEST SENT ✓'; this.querySelector('button').disabled=true;">
+      <input type="email" placeholder="you@email.com" required>
+      <button type="submit">REQUEST INVITE</button>
+    </form>
+    <div class="form-note">No spam. No signal-selling. Just the desk.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <img src="alpha-trades-logo.png" alt="Alpha Trades logo">
+      <span>Alpha Trades</span>
+    </div>
+    <div class="footer-links">
+      <a href="mailto:mominasad143@gmail.com">Email</a>
+      <a href="https://www.linkedin.com/in/mominasad" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://linktr.ee/DJLEGEND7" target="_blank" rel="noopener">Linktree</a>
+      <a href="#join">Join</a>
+    </div>
+  </div>
+  <div class="wrap footer-legal">© 2026 ALPHA TRADES. PLAN. EXECUTE. GROW.</div>
+</footer>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el=>io.observe(el));
+</script>
+
+</body>
+</html>
